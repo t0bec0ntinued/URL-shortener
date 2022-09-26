@@ -13,15 +13,17 @@ import (
 	"strings"
 
 	"github.com/gorilla/mux"
-
 	_ "github.com/lib/pq"
+	"github.com/skip2/go-qrcode"
 )
 
 func main() {
+
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", home)
 	router.HandleFunc("/{key}", short)
+
 	log.Fatal(http.ListenAndServe(":8080", router))
 
 }
@@ -44,6 +46,13 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 			result.Input = r.FormValue("s")
 			result.Output = shorting()
+			qrCode := qrcode.WriteFile(result.Output, qrcode.Medium, 1, "qr.png")
+
+			if qrCode != nil {
+				fmt.Printf("Sorry couldn't create qrcode:,%v", qrCode)
+
+			}
+
 			if os.Args[len(os.Args)-1] == "-d" {
 
 				db, err := sql.Open("postgres", connStr)
@@ -60,6 +69,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 			}
 
 		}
+
 	}
 	templ.Execute(w, result)
 }
@@ -81,6 +91,7 @@ func short(w http.ResponseWriter, r *http.Request) {
 	} else {
 		link = m[vars["key"]]
 	}
+
 	fmt.Fprintf(w, "<script>location='%s';</script>", link)
 }
 
@@ -125,3 +136,4 @@ func isValid(token string) bool {
 	}
 	return true
 }
+
