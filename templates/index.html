@@ -10,28 +10,38 @@
     <center >
     {{if .Input}}
     <br>
-    <div style = " background-color: #002C60;width : 700px; height : 200px; border:5px solid;border-color:#031e3f;border-radius: 15px;">
+    <div style = " background-color: #002C60;width : 700px; height : 330px; border:5px solid;border-color:#031e3f;border-radius: 15px;">
 <form action="/" name=f method="POST" >
+   
     <input type=url value ={{.Input}} maxLength=1024 size=70
            name=s value="" style ="color:#6c6d77;background-color:#104381da;outline:none !important;height:30px;border:none;border-radius: 5px; margin-top:15px">
            <input type=submit value="Cut down" name=qr style="background-color:#2046f2; outline: none !important; border:none;height:30px; border-radius:5px;">
 </form>
-<br>
-<div style="background-color: #0c4181; width:100%; border-top:2px solid;border-bottom: 2px solid; border-color: #031e3f;padding-bottom:20px;"> 
+
+
+   
+    
+
+
+<div style="background-color: #0c4181; width:100%; border-top:2px solid;border-bottom: 2px solid; border-color: #031e3f;padding-bottom:20px;margin-top:30px"> 
 <p style = "color: #fff;">Your short link. Please check it</p>
     <a href="http://localhost:8080/{{.Output}}" style = "color: #fff; text-decoration: none;">http://localhost:8080/{{.Output}}</a>
+    
+    <img src="../qr.png" width = 100 height =100 style = "display:block">
 </div>  
 
-</div>
+
+
+
     {{else}}
-<br>
+
 <div style = " background-color: #002C60;width : 700px; height : 200px; border:5px solid;border-color:#031e3f;border-radius: 15px;">
 <form action="/" name=f method="POST" >
     <input maxLength=1024 size=70
            name=s placeholder="Enter the link you want to shorten"  style ="color:#6c6d77;background-color: #0c4181;outline:none !important;height:30px;border:none;border-radius: 5px;margin-top:15px">
     <input type=submit value="Cut down" name=qr style="background-color:#2046f2; outline: none !important; border:none;height:30px; border-radius:5px;">
 </form>
-<br>
+
 
 </div>
 {{end}}
