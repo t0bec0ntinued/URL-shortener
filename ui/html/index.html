@@ -10,12 +10,12 @@
     <center >
     {{if .Input}}
     <br>
-    <div style = " background-color: #FFBF40;width : 700px; height : 350px; border:5px solid;border-color:#A66F00;border-radius: 15px;">
+    <div style = " background-color: #FFBF40;width : 700px; height : 390px; border:5px solid;border-color:#A66F00;border-radius: 15px;">
 <form action="/" name=f method="POST" >
    
     <input type=url value ={{.Input}} maxLength=1024 size=70
            name=s value="" style ="color:#fff;background-color:#BF8F30;outline:none !important;height:30px;border:none;border-radius: 5px; margin-top:15px">
-           <input type=submit value="Cut down" name=qr style="background-color:#A66F00; outline: none !important; border:none;height:30px; border-radius:5px;">
+           <input type=submit value="Cut the link" name=qr style="color: #302308;background-color:#A66F00; outline: none !important; border:none;height:30px; border-radius:5px;">
           
         </form>
        
@@ -31,16 +31,18 @@
 </h2 >
 
 <img src="../static/img/qr.jpg" style=" outline: none !important; height:100px; width:100px; border:none; border-radius:5px;">
+<br>
+<button style="background-color:#A66F00; outline: none !important; border:none;height:30px; border-radius:5px;"><a href = "../static/img/qr.jpg" style = "color: #302308; text-decoration: none;" download>Download code</a></button>
 
-
+</div>
 
     {{else}}
 <br>
 <div style = " background-color: #FFBF40;width : 700px; height : 60px; border:5px solid;border-color:#A66F00;border-radius: 15px;">
 <form action="/" name=f method="POST" >
-    <input maxLength=1024 size=65
+    <input maxLength=1024 size=68
            name=s placeholder="Enter the link you want to shorten"  style ="color:rgba(255, 255, 255, 0.979);background-color: #BF8F30;outline:none !important;height:30px;border:none;border-radius: 5px;margin-top:15px">
-    <input type=submit value="   Cut the link   " name=qr style="background-color:#A66F00; outline: none !important; border:none;height:30px; border-radius:5px;">
+    <input type=submit value="   Cut the link   " name=qr style="color: #302308;background-color:#A66F00; outline: none !important; border:none;height:30px; border-radius:5px;">
 </form>
 
 
