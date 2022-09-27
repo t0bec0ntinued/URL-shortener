@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <meta charset="UTF-8">
+    <title>Shorter</title>
+</head>
+<body style = "background-color: #FFD073">
+  
+    <center >
+    {{if .Input}}
+    <br>
+    <div style = " background-color: #FFBF40;width : 700px; height : 350px; border:5px solid;border-color:#A66F00;border-radius: 15px;">
+<form action="/" name=f method="POST" >
+   
+    <input type=url value ={{.Input}} maxLength=1024 size=70
+           name=s value="" style ="color:#fff;background-color:#BF8F30;outline:none !important;height:30px;border:none;border-radius: 5px; margin-top:15px">
+           <input type=submit value="Cut down" name=qr style="background-color:#A66F00; outline: none !important; border:none;height:30px; border-radius:5px;">
+          
+        </form>
+       
+
+<div style="background-color: #e09e2bda; width:100%; border-top:2px solid;border-bottom: 2px solid; border-color: #A66F00;padding-bottom:20px;margin-top:30px"> 
+<p style = "color: #fff;">Your short link. Please check it</p>
+    <a href="http://localhost:8080/{{.Output}}" style = "color: #fff; text-decoration: none;">http://localhost:8080/{{.Output}}</a>
+</div>  
+
+<h2 style = "color:rgb(247, 247, 247)">Your QR-Code
+
+
+</h2 >
+
+<img src="../static/img/qr.jpg" style=" outline: none !important; height:100px; width:100px; border:none; border-radius:5px;">
+
+
+
+    {{else}}
+<br>
+<div style = " background-color: #FFBF40;width : 700px; height : 60px; border:5px solid;border-color:#A66F00;border-radius: 15px;">
+<form action="/" name=f method="POST" >
+    <input maxLength=1024 size=65
+           name=s placeholder="Enter the link you want to shorten"  style ="color:rgba(255, 255, 255, 0.979);background-color: #BF8F30;outline:none !important;height:30px;border:none;border-radius: 5px;margin-top:15px">
+    <input type=submit value="   Cut the link   " name=qr style="background-color:#A66F00; outline: none !important; border:none;height:30px; border-radius:5px;">
+</form>
+
+
+</div>
+{{end}}
+</center>
+</body>
+</html>
