@@ -48,7 +48,8 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 			result.Input = r.FormValue("s")
 			result.Output = shorting()
-			s := Result{Input: result.Input,
+			s := Result{
+				Input:  result.Input,
 				Output: result.Output,
 			}
 			s.createQR()
@@ -74,7 +75,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	templ.Execute(w, result)
 }
 func (s Result) createQR() {
-	qrCode := qrcode.WriteFile("localhost:8080/"+s.Output, qrcode.Medium, 256, "../ui/static/img/qr.jpg")
+	qrCode := qrcode.WriteFile(s.Input, qrcode.Medium, 256, "../ui/static/img/qr.jpg")
 
 	if qrCode != nil {
 		fmt.Printf("Sorry couldn't create qrcode:,%v", qrCode)
