@@ -101,7 +101,7 @@ func short(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 		defer db.Close()
-		rows := db.QueryRow("select link from testtb where output=$1 limit 1", vars["key"]) //Вытаскиваем исходную ссылку, соответствующую ключу
+		rows := db.QueryRow("select input from testtb where output=$1 limit 1", vars["key"]) //Вытаскиваем исходную ссылку, соответствующую ключу
 		rows.Scan(&link)
 
 	} else {
