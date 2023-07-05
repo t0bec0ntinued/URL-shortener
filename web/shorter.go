@@ -17,12 +17,12 @@ import (
 
 func main() {
 
-	router := mux.NewRouter()
+	router := mux.NewRouter()			 // инициализация роутера
 	staticFileDirectory := http.Dir("../ui/static/")
 	staticFileHandler := http.StripPrefix("/static/", http.FileServer(staticFileDirectory))
 	router.PathPrefix("/static/").Handler(staticFileHandler).Methods("GET")
-	router.HandleFunc("/", home)
-	router.HandleFunc("/{key}", short)
+	router.HandleFunc("/", home)	// отслеживаем переход по localhost:8080/
+	router.HandleFunc("/{key}", short)	//  отслеживаем переход по localhost:8080/{key}
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 
@@ -30,7 +30,7 @@ func main() {
 
 const (
 	letters = "0123456789aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ" //Алфавит символов для сокращённой ссылки
-	connStr = "user=postgres password=1234 dbname=db sslmode=disable"          //Данные для подключения к БД
+	connStr = "user=test_user password=1234 dbname=test_db sslmode=disable"    //Данные для подключения к БД
 )
 
 var m = make(map[string]string)
@@ -58,16 +58,16 @@ func home(w http.ResponseWriter, r *http.Request) {
 			}
 			s.createQR() //Создаём QR-код
 
-			if os.Args[len(os.Args)-1] == "-d" {
+			if os.Args[len(os.Args)-1] == "-d" {//Для запуска по флагу -d
 
 				db, err := sql.Open("postgres", connStr) //Подключаемся к БД
 				if err != nil {
 					panic(err)
 				}
-				defer db.Close()                                                                            //Закрываем соединение
-				db.Exec("insert into mytable (input, output) values ($1, $2)", result.Input, result.Output) //Помещаем в БД исходную и сокращённую ссылки
+				defer db.Close()                                                                           //Закрываем соединение
+				db.Exec("insert into testtb (input, output) values ($1, $2)", result.Input, result.Output) //Помещаем в БД исходную и сокращённую ссылки
 
-			} else {
+			} else {//Для запуска без флага
 
 				m[result.Output] = result.Input // Ставим в соответствие ключ (сокращённую сслыку) и значение (исходную)
 
@@ -101,7 +101,7 @@ func short(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 		defer db.Close()
-		rows := db.QueryRow("select input from mytable where output=$1 limit 1", vars["key"]) //Вытаскиваем исходную ссылку, соответствующую ключу
+		rows := db.QueryRow("select link from testtb where output=$1 limit 1", vars["key"]) //Вытаскиваем исходную ссылку, соответствующую ключу
 		rows.Scan(&link)
 
 	} else {
@@ -111,13 +111,15 @@ func short(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<script>location='%s';</script>", link) //Вставляем исходную ссылку в строку поиска
 }
 
+var mass []string
+
 // Функция сокращения ссылок
 func shorting() string {
+	if os.Args[len(os.Args)-1] == "-d" { //При использовании флага -d
+		var maxShort string
 
-	if os.Args[len(os.Args)-1] == "-d" { //Для запуска с флагом (хранение в БД)
-		var strVal string
-		var strLen, lessRow int
-		db, err := sql.Open("postgres", connStr) //Открываем соединение с базой
+		var maxLen int
+		db, err := sql.Open("postgres", connStr) // Открываем соединение с БД
 
 		if err != nil {
 
@@ -125,73 +127,59 @@ func shorting() string {
 
 		}
 
-		defer db.Close()                                                          //Закрываем
-		rowsLen := db.QueryRow("SELECT max(length(output)) FROM public.mytable ") //Выбираем строки с наибольшей длиной
-		rowsLen.Scan(&strLen)
+		defer db.Close() // После завершения закрываем соединение с БД
 
-		rowsVal := db.QueryRow("select max(output) from public.mytable where length(output) = $1", strLen) //Выбираем наибольшее лингвистическое значение
-		rowsVal.Scan(&strVal)                                                                              //с максимальной длиной
+		rowsMax := db.QueryRow("SELECT length(output) FROM public.testtb order by length(output) desc limit 1") // Берём из базы данных максимальную длину output
+		rowsMax.Scan(&maxLen)                                                                                   // Записываем в maxLen
 
-		//Проверка на пропуски более коротких строк
-		for currLen := 0; currLen < strLen; currLen++ { //Изменяем текущую длину строки от 0 до самой длинной из имеющихся в базе
-			rowsLenLess := db.QueryRow("SELECT count(output) where length(output)=$1 FROM public.mytable ", currLen) //Выбираем количество строк с текущей длиной
-			rowsLenLess.Scan(&lessRow)
-			fmt.Println("count: ", lessRow)
-			if lessRow != len(letters)*currLen { //Если существующее количество строк не совпадает с максимальным количеством
+		rows := db.QueryRow("select output from testtb where length(output) = $1 order by output desc limit 1", maxLen) // Берём из базы данных output с максимальным лингвистическим значением
+		rows.Scan(&maxShort)                                                                                            // Записываем в maxShort
 
-				rowsValLess := db.QueryRow("select max(output) from public.mytable where length(output) = $1", currLen) //Записываем в макс. лингвистическое значение
-				rowsValLess.Scan(&strVal)                                                                               //макс. значение при текущей длине
-
+		for i := len(maxShort) - 1; i >= 0; i-- {
+			if maxShort[i] != 'Z' {
+				return maxShort[:i] + string(letters[strings.Index(letters, string(maxShort[i]))+1]) + maxShort[i+1:]
 			}
 		}
-		for i := len(strVal) - 1; i >= 0; i-- { //Увеличиваем значение ссылок
-			if strVal[i] != 'Z' {
-				index := strings.Index(letters, string(strVal[i]))
-				strVal = strings.Replace(strVal, string(strVal[i]), "", 1)
-				strVal = strVal + string(letters[index+1])
-				return strVal
-			}
-		}
-		return string(letters[0]) + strings.Repeat(string(letters[0]), strLen) //Если достигли символа Z, увеличиваем длину строки
-		//Нумерацию начинаем с нуля
+		return string(letters[0]) + strings.Repeat(string(letters[0]), maxLen)
+	} else { //Без флага
+		maxLen := 0
 
-	} else { //Для запуска без флага (хранение в памяти)
-		strLen := 0
 		keys := make([]string, 0, len(m))
-		for k, _ := range m {
-			if len(k) > strLen {
-				strLen = len(k)
+		for key := range m {
+			if len(key) > maxLen {
+				maxLen = len(key)
 			}
-			keys = append(keys, k)
+			keys = append(keys, key)
 		}
-		strVal := "0"
-		for _, val := range keys {
-			if len(val) > len(strVal) {
-				strVal = val
-				continue
-			} else if len(val) < len(strVal) {
-				continue
-			} else {
-				for i, v := range val {
-					if strings.Index(letters, string(v)) > strings.Index(letters, string(strVal[i])) {
-						strVal = val
-					}
+		maxShort := maxShort(keys)
+
+		for i := len(maxShort) - 1; i >= 0; i-- {
+			if maxShort[i] != 'Z' {
+				return maxShort[:i] + string(letters[strings.Index(letters, string(maxShort[i]))+1]) + maxShort[i+1:]
+			}
+		}
+		return string(letters[0]) + strings.Repeat(string(letters[0]), maxLen)
+	}
+}
+
+// Функция определяет лингвистически максимальное значение сокращённой ссылки при хранении локально
+func maxShort(s []string) string {
+	maxShort := "0"
+	for _, val := range s {
+		if len(val) > len(maxShort) {
+			maxShort = val
+			continue
+		} else if len(val) < len(maxShort) {
+			continue
+		} else {
+			for i, v := range val {
+				if strings.Index(letters, string(v)) > strings.Index(letters, string(maxShort[i])) {
+					maxShort = val
 				}
 			}
 		}
-
-		for i := len(strVal) - 1; i >= 0; i-- {
-			if strVal[i] != 'Z' {
-				index := strings.Index(letters, string(strVal[i]))
-				strVal = strings.Replace(strVal, string(strVal[i]), "", 1)
-				strVal = strVal + string(letters[index+1])
-				return strVal
-			}
-		}
-		return string(letters[0]) + strings.Repeat(string(letters[0]), strLen)
-
 	}
-
+	return maxShort
 }
 
 func isValid(token string) bool { //Проверяем введённую ссылку на валидность
