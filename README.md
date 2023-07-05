@@ -1,6 +1,6 @@
-#URL-shortener
+## URL-shortener
 Микросервис сокращения ссылок. В зависимости от флага запуска -d хранит данные либо в памяти либо в БД PostgreSQL
-#Install
+## Install
 1) Создать корневую папку, переместить в неё файлы go.mod,go.sum и postgres.sql
 2) Создать в корневой директории папки ui/html ui/static/img и web.
 3) Скопировать файл index.html в папку html, файл shorter.go в папку web
