@@ -17,12 +17,12 @@ import (
 
 func main() {
 
-	router := mux.NewRouter()			 // инициализация роутера
+	router := mux.NewRouter() // инициализация роутера
 	staticFileDirectory := http.Dir("../ui/static/")
 	staticFileHandler := http.StripPrefix("/static/", http.FileServer(staticFileDirectory))
 	router.PathPrefix("/static/").Handler(staticFileHandler).Methods("GET")
-	router.HandleFunc("/", home)	// отслеживаем переход по localhost:8080/
-	router.HandleFunc("/{key}", short)	//  отслеживаем переход по localhost:8080/{key}
+	router.HandleFunc("/", home)       // отслеживаем переход по localhost:8080/
+	router.HandleFunc("/{key}", short) //  отслеживаем переход по localhost:8080/{key}
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 
@@ -58,7 +58,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 			}
 			s.createQR() //Создаём QR-код
 
-			if os.Args[len(os.Args)-1] == "-d" {//Для запуска по флагу -d
+			if os.Args[len(os.Args)-1] == "-d" {
 
 				db, err := sql.Open("postgres", connStr) //Подключаемся к БД
 				if err != nil {
@@ -67,7 +67,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 				defer db.Close()                                                                           //Закрываем соединение
 				db.Exec("insert into testtb (input, output) values ($1, $2)", result.Input, result.Output) //Помещаем в БД исходную и сокращённую ссылки
 
-			} else {//Для запуска без флага
+			} else {
 
 				m[result.Output] = result.Input // Ставим в соответствие ключ (сокращённую сслыку) и значение (исходную)
 
