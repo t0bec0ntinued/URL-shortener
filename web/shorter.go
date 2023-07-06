@@ -111,7 +111,7 @@ func short(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<script>location='%s';</script>", link) //Вставляем исходную ссылку в строку поиска
 }
 
-var mass []string
+
 
 // Функция сокращения ссылок
 func shorting() string {
